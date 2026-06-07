@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="قارن شركات التنظيف في القاهرة والجيزة. تقييمات حقيقية، أسعار شفافة، حجز فوري."/>
+  <title>نظيف | شركات تنظيف في القاهرة والجيزة</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #050c14; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: #050c14; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" data-presets="react">
+import { useState, useEffect, useRef } from "react";
+
+// ============ REAL DATA ============
+const companies = [
+  { id:1, name:"Inter House Cleaning", nameAr:"إنتر هاوس للتنظيف", phone:"01098366448", area:"الشيخ زايد", rating:4.9, reviews:163, services:["تنظيف منازل","تنظيف شقق","تنظيف فلل"], price:300, available:true, color:"#22d3ee", badge:"الأكثر حجزاً" },
+  { id:2, name:"MR. House Cleaning", nameAr:"مستر هاوس", phone:"01063161674", area:"التجمع الأول", rating:4.9, reviews:132, services:["تنظيف منازل","تنظيف شقق"], price:280, available:true, color:"#a78bfa", badge:"موثوق" },
+  { id:3, name:"Anssam Deep Cleaning", nameAr:"أنسام للتنظيف العميق", phone:"01021624803", area:"مصر القديمة", rating:5.0, reviews:92, services:["تنظيف عميق","تعقيم","تنظيف منازل"], price:350, available:true, color:"#34d399", badge:"★ الأعلى تقييماً" },
+  { id:4, name:"PerfectPro Facilities", nameAr:"برفكت برو", phone:"01025005921", area:"مصر الجديدة", rating:4.9, reviews:88, services:["تنظيف مكاتب","تنظيف شركات","تعقيم"], price:400, available:true, color:"#fb923c", badge:"بريميوم" },
+  { id:5, name:"Clean Dean", nameAr:"كلين دين", phone:"01201265888", area:"الشيخ زايد", rating:4.7, reviews:96, services:["تنظيف فلل","تنظيف منازل"], price:380, available:true, color:"#f472b6", badge:null },
+  { id:6, name:"Galaxy Cleaning Egypt", nameAr:"جالاكسي كلين", phone:"01559936270", area:"الشرابية", rating:4.5, reviews:75, services:["تنظيف منازل","تنظيف أنتريهات","تنظيف واجهات"], price:270, available:true, color:"#60a5fa", badge:null },
+  { id:7, name:"شركة الجنة للنظافة", nameAr:"الجنة للنظافة", phone:"01157139355", area:"مدينة نصر", rating:4.7, reviews:87, services:["تنظيف منازل","تنظيف شقق"], price:260, available:true, color:"#4ade80", badge:null },
+  { id:8, name:"Habib Clean", nameAr:"حبيب كلين", phone:"01016961497", area:"المعادي", rating:4.7, reviews:130, services:["تنظيف منازل","تنظيف شقق"], price:290, available:true, color:"#e879f9", badge:null },
+  { id:9, name:"BusyBees Egypt", nameAr:"بيزي بيز", phone:"01111848900", area:"الشيخ زايد", rating:4.3, reviews:131, services:["تنظيف منازل","تنظيف مكاتب","تعقيم"], price:450, available:false, color:"#fbbf24", badge:null },
+  { id:10, name:"كن كير للنظافة", nameAr:"كن كير", phone:"01287355552", area:"السيدة زينب", rating:4.9, reviews:35, services:["تنظيف عام","تنظيف مكاتب"], price:220, available:true, color:"#2dd4bf", badge:"الأوفر سعراً" },
+  { id:11, name:"ICountry House Cleaning", nameAr:"آي كنتري", phone:"01023540890", area:"مدينة نصر", rating:4.9, reviews:66, services:["تنظيف منازل","تنظيف شقق"], price:250, available:true, color:"#818cf8", badge:null },
+  { id:12, name:"New Cairo Building Services", nameAr:"نيو كايرو سيرفيسز", phone:"01222487788", area:"التجمع الخامس", rating:4.7, reviews:35, services:["تنظيف منازل","تنظيف واجهات","تنظيف سجاد"], price:320, available:false, color:"#fb7185", badge:null },
+];
+
+const AREAS = ["كل المناطق","الشيخ زايد","التجمع الأول","التجمع الخامس","مدينة نصر","مصر الجديدة","المعادي","مصر القديمة","الشرابية","السيدة زينب"];
+const SERVICES = ["كل الخدمات","تنظيف منازل","تنظيف شقق","تنظيف فلل","تنظيف مكاتب","تنظيف سجاد","تنظيف واجهات","تعقيم","تنظيف عميق"];
+
+const FAQS = [
+  { q:"إيه الفرق بين نظيف والشركات العادية؟", a:"نظيف منصة متخصصة بتجمع أفضل شركات النظافة في مصر في مكان واحد. بتقدر تقارن الأسعار، تشوف التقييمات الحقيقية من عملاء زيك، وتحجز في ثواني من غير مكالمات أو لف." },
+  { q:"إيه الضمان لو الشغل مش كويس؟", a:"كل شركة على المنصة اتقيّمت من عملاء حقيقيين. لو حصل أي مشكلة، فريقنا بيتابع معاك لحد ما الموضوع يتحل. رضاك هو أولويتنا." },
+  { q:"إيه أسعار الخدمات؟", a:"الأسعار بتبدأ من 200 جنيه وبتتغير حسب نوع الخدمة والمنطقة وحجم المكان. كل شركة بتعرض أسعارها بوضوح قبل الحجز من غير أي مفاجآت." },
+  { q:"إزاي بضمن أمان الشركات؟", a:"كل الشركات المسجلة على نظيف بتمر بعملية تحقق ومتابعة مستمرة. بنراجع التقييمات بانتظام ونشيل أي شركة مش بتحافظ على معايير الجودة." },
+];
+
+// ============ SEO META (injected as comments for reference) ============
+// Title: نظيف | أفضل شركات تنظيف في مصر - احجز الآن
+// Description: قارن أفضل شركات التنظيف في القاهرة والجيزة. تقييمات حقيقية، أسعار شفافة، حجز فوري. خدمة تنظيف منازل وشقق وفلل ومكاتب.
+// Keywords: شركة تنظيف, تنظيف منازل, تنظيف شقق, شركة نظافة القاهرة, تنظيف فلل
+
+// ============ BOOKING MODAL ============
+function BookingModal({ company, onClose }) {
+  const [step, setStep] = useState(1);
+  const [form, setForm] = useState({ name:"", phone:"", address:"", service:"", date:"", size:"" });
+  const [done, setDone] = useState(false);
+  const [errors, setErrors] = useState({});
+  const bookingRef = `ND${Date.now().toString().slice(-5)}`;
+
+  const inp = {
+    background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.1)",
+    borderRadius:"10px", padding:"13px 16px", color:"#fff", fontSize:"14px",
+    fontFamily:"inherit", outline:"none", width:"100%", boxSizing:"border-box", direction:"rtl",
+    transition:"border-color 0.2s"
+  };
+
+  return (
+    <div onClick={onClose} style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.85)", zIndex:200,
+      display:"flex", alignItems:"center", justifyContent:"center", padding:"16px", backdropFilter:"blur(8px)" }}>
+      <div onClick={e=>e.stopPropagation()} style={{
+        background:"linear-gradient(135deg, #0f1923 0%, #0a1628 100%)",
+        border:`1px solid ${company.color}44`,
+        borderRadius:"24px", width:"100%", maxWidth:"460px", overflow:"hidden",
+        boxShadow:`0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px ${company.color}22`
+      }}>
+        {/* Top accent */}
+        <div style={{ height:"3px", background:`linear-gradient(90deg, transparent, ${company.color}, transparent)` }} />
+
+        {/* Header */}
+        <div style={{ padding:"24px 28px 20px", borderBottom:"1px solid rgba(255,255,255,0.06)" }}>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
+            <div>
+              <div style={{ color:"rgba(255,255,255,0.4)", fontSize:"11px", fontWeight:"600",
+                letterSpacing:"0.1em", textTransform:"uppercase", marginBottom:"6px" }}>حجز خدمة</div>
+              <div style={{ color:"#fff", fontWeight:"800", fontSize:"18px" }}>{company.nameAr}</div>
+              <div style={{ display:"flex", alignItems:"center", gap:"12px", marginTop:"8px" }}>
+                <span style={{ color:"#fbbf24", fontSize:"13px" }}>★ {company.rating}</span>
+                <span style={{ color:company.color, fontSize:"13px" }}>📞 {company.phone}</span>
+              </div>
+            </div>
+            <button onClick={onClose} style={{ background:"rgba(255,255,255,0.08)", border:"none",
+              color:"rgba(255,255,255,0.5)", cursor:"pointer", width:"36px", height:"36px",
+              borderRadius:"50%", fontSize:"18px", display:"flex", alignItems:"center", justifyContent:"center" }}>×</button>
+          </div>
+        </div>
+
+        <div style={{ padding:"24px 28px" }}>
+          {done ? (
+            <div style={{ textAlign:"center", padding:"16px 0" }}>
+              <div style={{ width:"72px", height:"72px", margin:"0 auto 20px",
+                background:`${company.color}18`, border:`2px solid ${company.color}`,
+                borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center",
+                fontSize:"28px" }}>✓</div>
+              <div style={{ color:"#fff", fontSize:"20px", fontWeight:"800", marginBottom:"8px" }}>تم الحجز بنجاح!</div>
+              <div style={{ color:"rgba(255,255,255,0.5)", fontSize:"13px", marginBottom:"8px" }}>
+                رقم الحجز: <span style={{ color:company.color, fontWeight:"700" }}>#{bookingRef}</span>
+              </div>
+              <div style={{ color:"rgba(255,255,255,0.4)", fontSize:"13px", marginBottom:"24px" }}>
+                هيتواصل معاك فريقنا خلال ساعتين لتأكيد الحجز
+              </div>
+              {/* WhatsApp link to admin - sends booking details */}
+              <a
+                href={`https://wa.me/201114875470?text=${encodeURIComponent(
+`🔔 حجز جديد على منصة نظيف
+━━━━━━━━━━━━━━
+رقم الحجز: #${bookingRef}
+👤 الاسم: ${form.name}
+📞 التليفون: ${form.phone}
+📍 العنوان: ${form.address}
+🧹 الخدمة: ${form.service}
+📐 الحجم: ${form.size || 'لم يحدد'}
+📅 التاريخ: ${form.date}
+🏢 الشركة المطلوبة: ${company.nameAr}
+📞 تليفون الشركة: ${company.phone}
+━━━━━━━━━━━━━━
+⚡ تواصل مع العميل في أقرب وقت`
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display:"block", background:"#25d366", color:"#fff",
+                  borderRadius:"12px", padding:"14px", textDecoration:"none",
+                  fontFamily:"inherit", fontSize:"15px", fontWeight:"800", marginBottom:"10px"
+                }}>
+                📲 استلم تفاصيل الحجز على واتساب
+              </a>
+              <button onClick={onClose} style={{ background:"rgba(255,255,255,0.06)", color:"rgba(255,255,255,0.6)",
+                border:"1px solid rgba(255,255,255,0.1)", borderRadius:"12px", padding:"12px",
+                cursor:"pointer", fontFamily:"inherit", fontSize:"14px", width:"100%" }}>إغلاق</button>
+            </div>
+          ) : (
+            <>
+              {/* Progress */}
+              <div style={{ display:"flex", gap:"6px", marginBottom:"24px" }}>
+                {[1,2].map(s=>(
+                  <div key={s} style={{ flex:1, height:"3px", borderRadius:"2px",
+                    background: step>=s ? company.color : "rgba(255,255,255,0.1)", transition:"all 0.4s" }} />
+                ))}
+              </div>
+
+              {step===1 && (
+                <div style={{ display:"flex", flexDirection:"column", gap:"12px" }}>
+                  <p style={{ color:"rgba(255,255,255,0.5)", fontSize:"12px", margin:"0 0 4px",
+                    fontWeight:"600", letterSpacing:"0.05em" }}>بياناتك</p>
+                  {[
+                    { key:"name", ph:"الاسم الكريم" },
+                    { key:"phone", ph:"رقم التليفون", type:"tel" },
+                    { key:"address", ph:"العنوان بالتفصيل" },
+                  ].map(f=>(
+                    <input key={f.key} type={f.type||"text"} placeholder={f.ph}
+                      value={form[f.key]} onChange={e=>setForm({...form,[f.key]:e.target.value})}
+                      style={inp} />
+                  ))}
+                  {errors.step1 && (
+                    <div style={{ background:"rgba(248,113,113,0.1)", border:"1px solid rgba(248,113,113,0.3)",
+                      borderRadius:"10px", padding:"10px 14px", color:"#f87171", fontSize:"13px" }}>
+                      ⚠️ {errors.step1}
+                    </div>
+                  )}
+                  <button onClick={()=>{
+                    if(!form.name.trim()) { setErrors({step1:"من فضلك اكتب اسمك"}); return; }
+                    if(!form.phone.trim()) { setErrors({step1:"من فضلك اكتب رقم التليفون"}); return; }
+                    if(!form.address.trim()) { setErrors({step1:"من فضلك اكتب العنوان"}); return; }
+                    setErrors({});
+                    setStep(2);
+                  }} style={{
+                    background:`linear-gradient(135deg, ${company.color}, ${company.color}cc)`,
+                    color:"#000", border:"none", borderRadius:"12px", padding:"14px",
+                    cursor:"pointer", fontFamily:"inherit", fontSize:"15px", fontWeight:"800",
+                    marginTop:"4px"
+                  }}>التالي ←</button>
+                </div>
+              )}
+
+              {step===2 && (
+                <div style={{ display:"flex", flexDirection:"column", gap:"12px" }}>
+                  <p style={{ color:"rgba(255,255,255,0.5)", fontSize:"12px", margin:"0 0 4px",
+                    fontWeight:"600", letterSpacing:"0.05em" }}>تفاصيل الخدمة</p>
+                  <select value={form.service} onChange={e=>setForm({...form,service:e.target.value})} style={inp}>
+                    <option value="">اختر الخدمة</option>
+                    {company.services.map(s=><option key={s} value={s}>{s}</option>)}
+                  </select>
+                  <select value={form.size} onChange={e=>setForm({...form,size:e.target.value})} style={inp}>
+                    <option value="">حجم المكان</option>
+                    <option>شقة صغيرة (1-2 غرفة)</option>
+                    <option>شقة متوسطة (3-4 غرفة)</option>
+                    <option>دوبلكس / فيلا</option>
+                    <option>مكتب / محل</option>
+                  </select>
+                  <input type="date" value={form.date}
+                    onChange={e=>setForm({...form,date:e.target.value})} style={inp} />
+                  {/* Price box */}
+                  <div style={{ background:`${company.color}10`, border:`1px solid ${company.color}30`,
+                    borderRadius:"12px", padding:"14px 16px",
+                    display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                    <div>
+                      <div style={{ color:"rgba(255,255,255,0.4)", fontSize:"11px" }}>السعر يبدأ من</div>
+                      <div style={{ color:company.color, fontWeight:"900", fontSize:"24px" }}>{company.price} ج</div>
+                    </div>
+                    <div style={{ color:"rgba(255,255,255,0.3)", fontSize:"12px", textAlign:"left" }}>
+                      السعر النهائي<br/>حسب الحجم
+                    </div>
+                  </div>
+                  {errors.step2 && (
+                    <div style={{ background:"rgba(248,113,113,0.1)", border:"1px solid rgba(248,113,113,0.3)",
+                      borderRadius:"10px", padding:"10px 14px", color:"#f87171", fontSize:"13px" }}>
+                      ⚠️ {errors.step2}
+                    </div>
+                  )}
+                  <div style={{ display:"flex", gap:"10px" }}>
+                    <button onClick={()=>{ setErrors({}); setStep(1); }} style={{ flex:1, background:"rgba(255,255,255,0.06)",
+                      color:"rgba(255,255,255,0.5)", border:"1px solid rgba(255,255,255,0.08)",
+                      borderRadius:"12px", padding:"13px", cursor:"pointer", fontFamily:"inherit", fontSize:"14px" }}>
+                      ← رجوع
+                    </button>
+                    <button onClick={()=>{
+                      if(!form.service) { setErrors({step2:"من فضلك اختار الخدمة"}); return; }
+                      if(!form.date) { setErrors({step2:"من فضلك اختار التاريخ"}); return; }
+                      setErrors({});
+                      setDone(true);
+                    }}
+                      style={{ flex:2, background:`linear-gradient(135deg, ${company.color}, ${company.color}cc)`,
+                        color:"#000", border:"none", borderRadius:"12px", padding:"13px",
+                        cursor:"pointer", fontFamily:"inherit", fontSize:"15px", fontWeight:"800" }}>
+                      ✓ تأكيد الحجز
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============ COMPANY CARD ============
+function CompanyCard({ company, onBook, index }) {
+  const [hov, setHov] = useState(false);
+  const initials = company.name.split(" ").slice(0,2).map(w=>w[0]).join("").toUpperCase();
+
+  return (
+    <div onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
+      style={{
+        background: hov
+          ? `linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 100%)`
+          : `rgba(255,255,255,0.02)`,
+        border:`1px solid ${hov ? company.color+"44" : "rgba(255,255,255,0.07)"}`,
+        borderRadius:"20px", padding:"24px",
+        transition:"all 0.35s cubic-bezier(0.4,0,0.2,1)",
+        transform: hov ? "translateY(-6px)" : "none",
+        boxShadow: hov ? `0 24px 48px rgba(0,0,0,0.4), 0 0 0 1px ${company.color}18` : "none",
+        position:"relative", overflow:"hidden", cursor:"default",
+        animationDelay:`${index*0.05}s`
+      }}>
+
+      {/* Top glow line */}
+      <div style={{ position:"absolute", top:0, left:0, right:0, height:"1px",
+        background: hov ? `linear-gradient(90deg, transparent 0%, ${company.color} 50%, transparent 100%)` : "transparent",
+        transition:"all 0.35s" }} />
+
+      {/* Badge */}
+      {company.badge && (
+        <div style={{ position:"absolute", top:"16px", left:"16px",
+          background:`${company.color}18`, border:`1px solid ${company.color}33`,
+          borderRadius:"20px", padding:"3px 10px",
+          color:company.color, fontSize:"10px", fontWeight:"700", letterSpacing:"0.05em" }}>
+          {company.badge}
+        </div>
+      )}
+
+      {/* Availability */}
+      <div style={{ position:"absolute", top:"16px", right:"16px",
+        display:"flex", alignItems:"center", gap:"5px" }}>
+        <div style={{ width:"6px", height:"6px", borderRadius:"50%",
+          background: company.available ? "#22c55e" : "#64748b",
+          boxShadow: company.available ? "0 0 6px #22c55e" : "none" }} />
+        <span style={{ color: company.available ? "#22c55e" : "#64748b", fontSize:"11px", fontWeight:"600" }}>
+          {company.available ? "متاح الآن" : "مشغول"}
+        </span>
+      </div>
+
+      {/* Avatar */}
+      <div style={{ marginTop: company.badge ? "28px" : "0", marginBottom:"16px" }}>
+        <div style={{ width:"52px", height:"52px", borderRadius:"14px",
+          background:`linear-gradient(135deg, ${company.color}28, ${company.color}10)`,
+          border:`1px solid ${company.color}33`,
+          display:"flex", alignItems:"center", justifyContent:"center",
+          color:company.color, fontWeight:"900", fontSize:"16px",
+          fontFamily:"'Space Grotesk', sans-serif" }}>
+          {initials}
+        </div>
+      </div>
+
+      {/* Name */}
+      <div style={{ color:"#fff", fontWeight:"800", fontSize:"16px", marginBottom:"4px", lineHeight:"1.3" }}>
+        {company.nameAr}
+      </div>
+      <div style={{ color:"rgba(255,255,255,0.35)", fontSize:"12px", marginBottom:"16px" }}>
+        📍 {company.area}
+      </div>
+
+      {/* Rating bar */}
+      <div style={{ display:"flex", alignItems:"center", gap:"8px", marginBottom:"14px" }}>
+        <div style={{ display:"flex", gap:"2px" }}>
+          {[1,2,3,4,5].map(s=>(
+            <span key={s} style={{ color: s<=Math.round(company.rating) ? "#fbbf24" : "rgba(255,255,255,0.15)", fontSize:"12px" }}>★</span>
+          ))}
+        </div>
+        <span style={{ color:"#fbbf24", fontWeight:"700", fontSize:"14px" }}>{company.rating}</span>
+        <span style={{ color:"rgba(255,255,255,0.3)", fontSize:"12px" }}>({company.reviews} تقييم)</span>
+      </div>
+
+      {/* Services tags */}
+      <div style={{ display:"flex", flexWrap:"wrap", gap:"6px", marginBottom:"18px" }}>
+        {company.services.map(s=>(
+          <span key={s} style={{ background:"rgba(255,255,255,0.06)", color:"rgba(255,255,255,0.5)",
+            fontSize:"11px", padding:"4px 10px", borderRadius:"8px", fontWeight:"500" }}>{s}</span>
+        ))}
+      </div>
+
+      {/* Footer */}
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between",
+        paddingTop:"16px", borderTop:"1px solid rgba(255,255,255,0.06)" }}>
+        <div>
+          <div style={{ color:"rgba(255,255,255,0.3)", fontSize:"10px", fontWeight:"600", letterSpacing:"0.08em" }}>يبدأ من</div>
+          <div style={{ color:company.color, fontWeight:"900", fontSize:"22px", lineHeight:"1" }}>{company.price}<span style={{ fontSize:"13px", fontWeight:"600" }}> ج</span></div>
+        </div>
+        <button onClick={()=>onBook(company)} disabled={!company.available}
+          style={{
+            background: company.available ? `linear-gradient(135deg, ${company.color}, ${company.color}bb)` : "rgba(255,255,255,0.06)",
+            color: company.available ? "#000" : "rgba(255,255,255,0.25)",
+            border:"none", borderRadius:"12px", padding:"11px 22px",
+            cursor: company.available ? "pointer" : "not-allowed",
+            fontFamily:"inherit", fontSize:"14px", fontWeight:"800",
+            transition:"all 0.2s", letterSpacing:"0.02em"
+          }}>
+          {company.available ? "احجز الآن" : "غير متاح"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ============ FAQ ============
+function FAQ() {
+  const [open, setOpen] = useState(null);
+  return (
+    <section style={{ padding:"80px 5% 80px", maxWidth:"720px", margin:"0 auto" }}>
+      <div style={{ textAlign:"center", marginBottom:"48px" }}>
+        <div style={{ color:"#22d3ee", fontSize:"12px", fontWeight:"700", letterSpacing:"0.15em",
+          textTransform:"uppercase", marginBottom:"12px" }}>الأسئلة الشائعة</div>
+        <h2 style={{ color:"#fff", fontSize:"clamp(24px,3vw,36px)", fontWeight:"900", margin:0 }}>
+          كل حاجة عايز تعرفها
+        </h2>
+      </div>
+      <div style={{ display:"flex", flexDirection:"column", gap:"12px" }}>
+        {FAQS.map((f,i)=>(
+          <div key={i} onClick={()=>setOpen(open===i?null:i)}
+            style={{ background:"rgba(255,255,255,0.03)", border:`1px solid ${open===i ? "rgba(34,211,238,0.3)" : "rgba(255,255,255,0.07)"}`,
+              borderRadius:"16px", overflow:"hidden", cursor:"pointer", transition:"all 0.3s" }}>
+            <div style={{ padding:"20px 24px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+              <span style={{ color:open===i ? "#22d3ee" : "#fff", fontWeight:"700", fontSize:"15px", flex:1, direction:"rtl" }}>{f.q}</span>
+              <span style={{ color:"rgba(255,255,255,0.3)", fontSize:"20px", marginRight:"16px",
+                transform: open===i ? "rotate(45deg)" : "none", transition:"transform 0.3s" }}>+</span>
+            </div>
+            {open===i && (
+              <div style={{ padding:"0 24px 20px", color:"rgba(255,255,255,0.55)", fontSize:"14px",
+                lineHeight:"1.7", direction:"rtl" }}>{f.a}</div>
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ============ DASHBOARD ============
+function Dashboard({ onBack }) {
+  const [tab, setTab] = useState("overview");
+  const bookings = [
+    { id:"ND92841", client:"أحمد السيد", service:"تنظيف منازل", company:"Inter House", date:"10/06/2026", status:"مؤكد", amount:300 },
+    { id:"ND92842", client:"سارة محمود", service:"تنظيف عميق", company:"Anssam", date:"11/06/2026", status:"معلق", amount:350 },
+    { id:"ND92843", client:"محمد علي", service:"تنظيف مكاتب", company:"PerfectPro", date:"09/06/2026", status:"مكتمل", amount:400 },
+    { id:"ND92844", client:"نور أحمد", service:"تنظيف سجاد", company:"Gabr Clean", date:"12/06/2026", status:"مؤكد", amount:200 },
+    { id:"ND92845", client:"هاني كمال", service:"تنظيف شقق", company:"الجنة", date:"08/06/2026", status:"مكتمل", amount:260 },
+    { id:"ND92846", client:"ريم مصطفى", service:"تعقيم", company:"BusyBees", date:"07/06/2026", status:"ملغي", amount:180 },
+  ];
+  const statusC = { "مؤكد":"#22d3ee", "معلق":"#fbbf24", "مكتمل":"#4ade80", "ملغي":"#f87171" };
+  const tabs = [
+    {id:"overview",label:"الرئيسية",icon:"▤"},
+    {id:"bookings",label:"الحجوزات",icon:"≡"},
+    {id:"companies",label:"الشركات",icon:"◈"},
+    {id:"revenue",label:"الإيرادات",icon:"◎"},
+  ];
+
+  return (
+    <div style={{ minHeight:"100vh", background:"#050c14", fontFamily:"'Cairo',sans-serif", direction:"rtl", display:"flex" }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');`}</style>
+      {/* Sidebar */}
+      <aside style={{ width:"220px", background:"linear-gradient(180deg,#090f1a 0%,#060d15 100%)",
+        borderLeft:"1px solid rgba(255,255,255,0.05)", position:"fixed", top:0, right:0, bottom:0,
+        display:"flex", flexDirection:"column" }}>
+        <div style={{ padding:"28px 20px 20px", borderBottom:"1px solid rgba(255,255,255,0.05)" }}>
+          <div style={{ fontSize:"22px", fontWeight:"900", letterSpacing:"-0.02em" }}>
+            <span style={{ color:"#22d3ee" }}>نظيف</span>
+            <span style={{ color:"rgba(255,255,255,0.2)", fontSize:"11px", fontWeight:"400",
+              display:"block", letterSpacing:"0.1em", marginTop:"2px" }}>ADMIN PANEL</span>
+          </div>
+        </div>
+        <nav style={{ padding:"20px 12px", flex:1 }}>
+          {tabs.map(t=>(
+            <button key={t.id} onClick={()=>setTab(t.id)} style={{
+              width:"100%", display:"flex", alignItems:"center", gap:"10px",
+              padding:"11px 14px", borderRadius:"10px", cursor:"pointer",
+              fontFamily:"inherit", fontSize:"13px", fontWeight:tab===t.id?"700":"500",
+              textAlign:"right", border: tab===t.id ? "1px solid rgba(34,211,238,0.2)" : "1px solid transparent",
+              background: tab===t.id ? "rgba(34,211,238,0.08)" : "transparent",
+              color: tab===t.id ? "#22d3ee" : "rgba(255,255,255,0.4)",
+              marginBottom:"4px", transition:"all 0.2s"
+            }}>
+              <span style={{ fontSize:"16px", opacity:0.8 }}>{t.icon}</span>{t.label}
+            </button>
+          ))}
+        </nav>
+        <div style={{ padding:"16px 12px", borderTop:"1px solid rgba(255,255,255,0.05)" }}>
+          <button onClick={onBack} style={{ width:"100%", background:"rgba(255,255,255,0.04)",
+            color:"rgba(255,255,255,0.4)", border:"1px solid rgba(255,255,255,0.07)",
+            borderRadius:"10px", padding:"11px", cursor:"pointer", fontFamily:"inherit",
+            fontSize:"13px", display:"flex", alignItems:"center", gap:"8px", justifyContent:"center" }}>
+            ← الموقع
+          </button>
+        </div>
+      </aside>
+
+      {/* Main */}
+      <main style={{ marginRight:"220px", padding:"36px 40px", flex:1, overflowY:"auto" }}>
+        {tab==="overview" && (
+          <>
+            <div style={{ marginBottom:"32px" }}>
+              <h1 style={{ color:"#fff", fontSize:"24px", fontWeight:"900", margin:"0 0 6px" }}>لوحة التحكم</h1>
+              <p style={{ color:"rgba(255,255,255,0.3)", fontSize:"13px", margin:0 }}>يونيو 2026 — القاهرة والجيزة</p>
+            </div>
+
+            {/* KPI Cards */}
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"16px", marginBottom:"32px" }}>
+              {[
+                { label:"إجمالي الطلبات", value:"1,510", change:"+14%", icon:"📦", color:"#22d3ee" },
+                { label:"عملاء جدد", value:"312", change:"+9%", icon:"👥", color:"#4ade80" },
+                { label:"شركات نشطة", value:"12", change:"+3", icon:"🏢", color:"#a78bfa" },
+                { label:"الإيراد الشهري", value:"47,200 ج", change:"+21%", icon:"💰", color:"#fbbf24" },
+              ].map(k=>(
+                <div key={k.label} style={{ background:"rgba(255,255,255,0.02)",
+                  border:"1px solid rgba(255,255,255,0.06)", borderRadius:"16px", padding:"22px" }}>
+                  <div style={{ display:"flex", justifyContent:"space-between", marginBottom:"14px" }}>
+                    <span style={{ fontSize:"20px" }}>{k.icon}</span>
+                    <span style={{ background:"rgba(74,222,128,0.12)", color:"#4ade80",
+                      fontSize:"11px", padding:"3px 9px", borderRadius:"20px", fontWeight:"700" }}>{k.change}</span>
+                  </div>
+                  <div style={{ color:k.color, fontSize:"22px", fontWeight:"900", marginBottom:"4px" }}>{k.value}</div>
+                  <div style={{ color:"rgba(255,255,255,0.3)", fontSize:"11px" }}>{k.label}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Bookings table */}
+            <div style={{ background:"rgba(255,255,255,0.02)", border:"1px solid rgba(255,255,255,0.06)",
+              borderRadius:"16px", overflow:"hidden" }}>
+              <div style={{ padding:"20px 24px", borderBottom:"1px solid rgba(255,255,255,0.05)",
+                display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                <h3 style={{ color:"#fff", margin:0, fontSize:"15px", fontWeight:"800" }}>آخر الحجوزات</h3>
+                <span style={{ color:"rgba(255,255,255,0.3)", fontSize:"12px" }}>{bookings.length} حجز</span>
+              </div>
+              <table style={{ width:"100%", borderCollapse:"collapse" }}>
+                <thead>
+                  <tr style={{ background:"rgba(0,0,0,0.2)" }}>
+                    {["#","العميل","الخدمة","الشركة","التاريخ","الحالة","المبلغ"].map(h=>(
+                      <th key={h} style={{ padding:"12px 16px", color:"rgba(255,255,255,0.25)",
+                        fontSize:"11px", fontWeight:"700", textAlign:"right", letterSpacing:"0.05em" }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {bookings.map((b,i)=>(
+                    <tr key={b.id} style={{ borderTop:"1px solid rgba(255,255,255,0.04)" }}>
+                      <td style={{ padding:"14px 16px", color:"#22d3ee", fontSize:"12px", fontWeight:"700" }}>{b.id}</td>
+                      <td style={{ padding:"14px 16px", color:"rgba(255,255,255,0.8)", fontSize:"13px" }}>{b.client}</td>
+                      <td style={{ padding:"14px 16px", color:"rgba(255,255,255,0.45)", fontSize:"12px" }}>{b.service}</td>
+                      <td style={{ padding:"14px 16px", color:"rgba(255,255,255,0.45)", fontSize:"12px" }}>{b.company}</td>
+                      <td style={{ padding:"14px 16px", color:"rgba(255,255,255,0.3)", fontSize:"11px" }}>{b.date}</td>
+                      <td style={{ padding:"14px 16px" }}>
+                        <span style={{ background:`${statusC[b.status]}15`, color:statusC[b.status],
+                          fontSize:"10px", padding:"4px 12px", borderRadius:"20px", fontWeight:"700" }}>{b.status}</span>
+                      </td>
+                      <td style={{ padding:"14px 16px", color:"#fbbf24", fontSize:"14px", fontWeight:"800" }}>{b.amount} ج</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+
+        {tab==="companies" && (
+          <>
+            <h1 style={{ color:"#fff", fontSize:"22px", fontWeight:"900", margin:"0 0 28px" }}>الشركات المسجلة</h1>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:"14px" }}>
+              {companies.map(c=>{
+                const init = c.name.split(" ").slice(0,2).map(w=>w[0]).join("").toUpperCase();
+                return (
+                  <div key={c.id} style={{ background:"rgba(255,255,255,0.02)",
+                    border:"1px solid rgba(255,255,255,0.06)", borderRadius:"14px", padding:"20px",
+                    display:"flex", gap:"16px", alignItems:"center" }}>
+                    <div style={{ width:"44px", height:"44px", borderRadius:"12px",
+                      background:`${c.color}18`, border:`1px solid ${c.color}30`,
+                      display:"flex", alignItems:"center", justifyContent:"center",
+                      color:c.color, fontWeight:"900", fontSize:"13px", flexShrink:0 }}>{init}</div>
+                    <div style={{ flex:1, minWidth:0 }}>
+                      <div style={{ color:"#fff", fontWeight:"700", fontSize:"13px",
+                        overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{c.nameAr}</div>
+                      <div style={{ color:"rgba(255,255,255,0.3)", fontSize:"11px" }}>{c.area} • {c.reviews} تقييم</div>
+                      <div style={{ display:"flex", gap:"8px", marginTop:"6px", alignItems:"center" }}>
+                        <span style={{ color:"#fbbf24", fontSize:"11px" }}>★ {c.rating}</span>
+                        <span style={{ width:"4px", height:"4px", borderRadius:"50%",
+                          background: c.available ? "#22c55e" : "#64748b",
+                          boxShadow: c.available ? "0 0 4px #22c55e" : "none" }} />
+                        <span style={{ color: c.available ? "#22c55e" : "#64748b", fontSize:"10px" }}>
+                          {c.available ? "نشط" : "غير نشط"}
+                        </span>
+                      </div>
+                    </div>
+                    <div style={{ color:c.color, fontWeight:"900", fontSize:"18px", flexShrink:0 }}>{c.price}<span style={{ fontSize:"11px" }}>ج</span></div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+
+        {(tab==="bookings") && (
+          <>
+            <h1 style={{ color:"#fff", fontSize:"22px", fontWeight:"900", margin:"0 0 28px" }}>جميع الحجوزات</h1>
+            <div style={{ background:"rgba(255,255,255,0.02)", border:"1px solid rgba(255,255,255,0.06)",
+              borderRadius:"16px", overflow:"hidden" }}>
+              <table style={{ width:"100%", borderCollapse:"collapse" }}>
+                <thead>
+                  <tr style={{ background:"rgba(0,0,0,0.2)" }}>
+                    {["#","العميل","الخدمة","الشركة","التاريخ","الحالة","المبلغ"].map(h=>(
+                      <th key={h} style={{ padding:"14px 16px", color:"rgba(255,255,255,0.25)",
+                        fontSize:"11px", fontWeight:"700", textAlign:"right" }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {bookings.map(b=>(
+                    <tr key={b.id} style={{ borderTop:"1px solid rgba(255,255,255,0.04)" }}>
+                      <td style={{ padding:"14px 16px", color:"#22d3ee", fontSize:"12px", fontWeight:"700" }}>{b.id}</td>
+                      <td style={{ padding:"14px 16px", color:"rgba(255,255,255,0.8)", fontSize:"13px" }}>{b.client}</td>
+                      <td style={{ padding:"14px 16px", color:"rgba(255,255,255,0.45)", fontSize:"12px" }}>{b.service}</td>
+                      <td style={{ padding:"14px 16px", color:"rgba(255,255,255,0.45)", fontSize:"12px" }}>{b.company}</td>
+                      <td style={{ padding:"14px 16px", color:"rgba(255,255,255,0.3)", fontSize:"11px" }}>{b.date}</td>
+                      <td style={{ padding:"14px 16px" }}>
+                        <span style={{ background:`${statusC[b.status]}15`, color:statusC[b.status],
+                          fontSize:"10px", padding:"4px 12px", borderRadius:"20px", fontWeight:"700" }}>{b.status}</span>
+                      </td>
+                      <td style={{ padding:"14px 16px", color:"#fbbf24", fontSize:"14px", fontWeight:"800" }}>{b.amount} ج</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+
+        {tab==="revenue" && (
+          <>
+            <h1 style={{ color:"#fff", fontSize:"22px", fontWeight:"900", margin:"0 0 28px" }}>الإيرادات</h1>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:"16px", marginBottom:"28px" }}>
+              {[
+                { label:"إيراد اليوم", value:"2,450 ج", color:"#22d3ee" },
+                { label:"إيراد الأسبوع", value:"14,800 ج", color:"#a78bfa" },
+                { label:"إيراد الشهر", value:"47,200 ج", color:"#fbbf24" },
+              ].map(r=>(
+                <div key={r.label} style={{ background:"rgba(255,255,255,0.02)",
+                  border:"1px solid rgba(255,255,255,0.06)", borderRadius:"16px", padding:"28px 24px" }}>
+                  <div style={{ color:"rgba(255,255,255,0.3)", fontSize:"12px", marginBottom:"8px" }}>{r.label}</div>
+                  <div style={{ color:r.color, fontSize:"28px", fontWeight:"900" }}>{r.value}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ background:"rgba(255,255,255,0.02)", border:"1px solid rgba(255,255,255,0.06)",
+              borderRadius:"16px", padding:"28px" }}>
+              <h3 style={{ color:"rgba(255,255,255,0.5)", fontSize:"13px", margin:"0 0 20px",
+                fontWeight:"600", letterSpacing:"0.1em" }}>مصادر الإيراد</h3>
+              {[
+                { label:"عمولة الحجوزات (15%)", value:28320, total:47200, color:"#22d3ee" },
+                { label:"اشتراكات الشركات", value:12000, total:47200, color:"#a78bfa" },
+                { label:"ترقية الظهور", value:6880, total:47200, color:"#fbbf24" },
+              ].map(r=>(
+                <div key={r.label} style={{ marginBottom:"20px" }}>
+                  <div style={{ display:"flex", justifyContent:"space-between", marginBottom:"8px" }}>
+                    <span style={{ color:"rgba(255,255,255,0.6)", fontSize:"13px" }}>{r.label}</span>
+                    <span style={{ color:r.color, fontWeight:"700", fontSize:"13px" }}>{r.value.toLocaleString()} ج</span>
+                  </div>
+                  <div style={{ background:"rgba(255,255,255,0.06)", borderRadius:"4px", height:"6px" }}>
+                    <div style={{ background:r.color, borderRadius:"4px", height:"100%",
+                      width:`${(r.value/r.total*100).toFixed(0)}%`, transition:"width 0.6s" }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </main>
+    </div>
+  );
+}
+
+// ============ MAIN APP ============
+export default function App() {
+  const [view, setView] = useState("home");
+  const [search, setSearch] = useState("");
+  const [area, setArea] = useState("كل المناطق");
+  const [service, setService] = useState("كل الخدمات");
+  const [sortBy, setSortBy] = useState("rating");
+  const [booking, setBooking] = useState(null);
+  const [onlyAvail, setOnlyAvail] = useState(false);
+
+  if (view === "dashboard") return <Dashboard onBack={()=>setView("home")} />;
+
+  const filtered = companies.filter(c => {
+    const q = search.trim().toLowerCase();
+    const ms = !q || c.nameAr.includes(q) || c.name.toLowerCase().includes(q) || c.area.includes(q) || c.services.some(s=>s.includes(q));
+    const ma = area==="كل المناطق" || c.area===area;
+    const msvc = service==="كل الخدمات" || c.services.includes(service);
+    const mv = !onlyAvail || c.available;
+    return ms && ma && msvc && mv;
+  }).sort((a,b)=>{
+    if(sortBy==="rating") return b.rating-a.rating || b.reviews-a.reviews;
+    if(sortBy==="price_asc") return a.price-b.price;
+    if(sortBy==="price_desc") return b.price-a.price;
+    if(sortBy==="reviews") return b.reviews-a.reviews;
+    return 0;
+  });
+
+  const selStyle = {
+    background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.1)",
+    color:"rgba(255,255,255,0.8)", borderRadius:"10px", padding:"9px 14px",
+    fontFamily:"inherit", fontSize:"13px", cursor:"pointer", outline:"none",
+    direction:"rtl", appearance:"none", WebkitAppearance:"none"
+  };
+
+  return (
+    <div style={{ minHeight:"100vh", background:"#050c14", color:"#fff",
+      fontFamily:"'Cairo','Segoe UI',sans-serif", direction:"rtl" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap');
+        * { box-sizing:border-box; margin:0; padding:0; }
+        ::-webkit-scrollbar { width:4px; }
+        ::-webkit-scrollbar-track { background:#050c14; }
+        ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:4px; }
+        input::placeholder, textarea::placeholder { color:rgba(255,255,255,0.25)!important; }
+        select option { background:#0a1628; color:#fff; }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
+        .card-enter { animation: fadeUp 0.4s ease forwards; }
+      `}</style>
+
+      {/* ─── NAVBAR ─── */}
+      <nav style={{ position:"sticky", top:0, zIndex:100,
+        background:"rgba(5,12,20,0.85)", backdropFilter:"blur(20px)",
+        borderBottom:"1px solid rgba(255,255,255,0.06)",
+        padding:"0 5%", display:"flex", justifyContent:"space-between",
+        alignItems:"center", height:"64px" }}>
+        <div style={{ display:"flex", alignItems:"center", gap:"10px" }}>
+          <div style={{ width:"34px", height:"34px", borderRadius:"10px",
+            background:"linear-gradient(135deg,#22d3ee,#0891b2)",
+            display:"flex", alignItems:"center", justifyContent:"center",
+            fontSize:"16px", fontWeight:"900", color:"#000" }}>ن</div>
+          <span style={{ fontSize:"20px", fontWeight:"900", letterSpacing:"-0.02em" }}>نظيف</span>
+          <span style={{ background:"rgba(34,211,238,0.12)", color:"#22d3ee",
+            fontSize:"9px", padding:"2px 8px", borderRadius:"20px", fontWeight:"700",
+            letterSpacing:"0.1em" }}>BETA</span>
+        </div>
+        <div style={{ display:"flex", gap:"10px", alignItems:"center" }}>
+          <button onClick={()=>setView("dashboard")} style={{ background:"transparent",
+            color:"rgba(255,255,255,0.4)", border:"1px solid rgba(255,255,255,0.08)",
+            borderRadius:"10px", padding:"8px 16px", cursor:"pointer",
+            fontFamily:"inherit", fontSize:"13px", transition:"all 0.2s" }}>
+            لوحة التحكم
+          </button>
+          <button style={{ background:"linear-gradient(135deg,#22d3ee,#0891b2)", color:"#000",
+            border:"none", borderRadius:"10px", padding:"9px 20px", cursor:"pointer",
+            fontFamily:"inherit", fontSize:"13px", fontWeight:"800" }}>
+            سجّل شركتك
+          </button>
+        </div>
+      </nav>
+
+      {/* ─── HERO ─── */}
+      <header style={{ padding:"90px 5% 70px", position:"relative", overflow:"hidden" }}>
+        {/* BG glow */}
+        <div style={{ position:"absolute", top:"-20%", left:"50%", transform:"translateX(-50%)",
+          width:"600px", height:"400px", borderRadius:"50%",
+          background:"radial-gradient(ellipse, rgba(34,211,238,0.07) 0%, transparent 70%)",
+          pointerEvents:"none" }} />
+
+        <div style={{ maxWidth:"760px", margin:"0 auto", textAlign:"center", position:"relative" }}>
+          {/* SEO: H1 with keywords */}
+          <div style={{ display:"inline-flex", alignItems:"center", gap:"8px",
+            background:"rgba(34,211,238,0.08)", border:"1px solid rgba(34,211,238,0.2)",
+            borderRadius:"30px", padding:"6px 18px", marginBottom:"24px" }}>
+            <span style={{ width:"6px", height:"6px", borderRadius:"50%", background:"#22d3ee",
+              boxShadow:"0 0 8px #22d3ee", flexShrink:0 }} />
+            <span style={{ color:"#22d3ee", fontSize:"12px", fontWeight:"700" }}>
+              داتا حقيقية من Google Maps • 15+ شركة مسجلة
+            </span>
+          </div>
+
+          <h1 style={{ fontSize:"clamp(32px,5vw,60px)", fontWeight:"900", lineHeight:"1.1",
+            letterSpacing:"-0.03em", marginBottom:"20px" }}>
+            شركات تنظيف موثوقة<br/>
+            <span style={{ background:"linear-gradient(135deg,#22d3ee 0%,#818cf8 100%)",
+              WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent",
+              backgroundClip:"text" }}>في القاهرة والجيزة</span>
+          </h1>
+
+          <p style={{ color:"rgba(255,255,255,0.45)", fontSize:"16px", lineHeight:"1.6",
+            marginBottom:"36px", maxWidth:"500px", margin:"0 auto 36px" }}>
+            قارن أسعار شركات النظافة، شوف تقييمات العملاء الحقيقية، واحجز في ثواني
+          </p>
+
+          {/* Search Bar */}
+          <div style={{ display:"flex", background:"rgba(255,255,255,0.04)",
+            border:"1px solid rgba(255,255,255,0.1)", borderRadius:"16px",
+            padding:"6px 6px 6px 6px", gap:"8px", maxWidth:"580px", margin:"0 auto",
+            boxShadow:"0 0 60px rgba(34,211,238,0.06)" }}>
+            <div style={{ flex:1, display:"flex", alignItems:"center", gap:"10px", padding:"4px 14px" }}>
+              <span style={{ color:"rgba(255,255,255,0.25)", fontSize:"16px" }}>🔍</span>
+              <input type="search" placeholder="ابحث: شركة، منطقة، نوع خدمة..."
+                value={search} onChange={e=>setSearch(e.target.value)}
+                style={{ flex:1, background:"transparent", border:"none", color:"#fff",
+                  fontSize:"15px", fontFamily:"inherit", outline:"none", direction:"rtl" }} />
+            </div>
+            <button style={{ background:"linear-gradient(135deg,#22d3ee,#0891b2)", color:"#000",
+              border:"none", borderRadius:"12px", padding:"12px 28px", cursor:"pointer",
+              fontFamily:"inherit", fontSize:"15px", fontWeight:"800", whiteSpace:"nowrap" }}>
+              ابحث الآن
+            </button>
+          </div>
+
+          {/* Trust signals */}
+          <div style={{ display:"flex", justifyContent:"center", gap:"36px", marginTop:"40px",
+            flexWrap:"wrap" }}>
+            {[
+              { n:"15+", l:"شركة مسجلة" },
+              { n:"500+", l:"حجز مكتمل" },
+              { n:"4.7/5", l:"متوسط التقييم" },
+              { n:"مجاناً", l:"الحجز بدون رسوم" },
+            ].map(s=>(
+              <div key={s.l} style={{ textAlign:"center" }}>
+                <div style={{ color:"#22d3ee", fontWeight:"900", fontSize:"20px",
+                  letterSpacing:"-0.02em" }}>{s.n}</div>
+                <div style={{ color:"rgba(255,255,255,0.3)", fontSize:"12px", marginTop:"2px" }}>{s.l}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </header>
+
+      {/* ─── HOW IT WORKS ─── */}
+      <section style={{ padding:"60px 5%", background:"rgba(255,255,255,0.01)",
+        borderTop:"1px solid rgba(255,255,255,0.04)", borderBottom:"1px solid rgba(255,255,255,0.04)" }}>
+        <div style={{ textAlign:"center", marginBottom:"48px" }}>
+          <div style={{ color:"rgba(255,255,255,0.3)", fontSize:"11px", fontWeight:"700",
+            letterSpacing:"0.15em", textTransform:"uppercase", marginBottom:"10px" }}>إزاي بيشتغل</div>
+          <h2 style={{ color:"#fff", fontSize:"clamp(22px,2.5vw,32px)", fontWeight:"900",
+            letterSpacing:"-0.02em" }}>3 خطوات بس وخلاص</h2>
+        </div>
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:"24px", maxWidth:"900px", margin:"0 auto" }}>
+          {[
+            { n:"01", title:"ابحث", desc:"ابحث باسم المنطقة أو الخدمة اللي محتاجها", color:"#22d3ee" },
+            { n:"02", title:"قارن", desc:"شوف التقييمات والأسعار الحقيقية واختار الأنسب ليك", color:"#a78bfa" },
+            { n:"03", title:"احجز", desc:"احجز في ثواني وفريق الشركة هيتواصل معاك فوراً", color:"#4ade80" },
+          ].map(s=>(
+            <div key={s.n} style={{ background:"rgba(255,255,255,0.02)",
+              border:"1px solid rgba(255,255,255,0.06)", borderRadius:"20px", padding:"32px 28px" }}>
+              <div style={{ color:s.color, fontSize:"11px", fontWeight:"800",
+                letterSpacing:"0.15em", marginBottom:"16px" }}>{s.n}</div>
+              <h3 style={{ color:"#fff", fontSize:"20px", fontWeight:"900", marginBottom:"10px" }}>{s.title}</h3>
+              <p style={{ color:"rgba(255,255,255,0.4)", fontSize:"14px", lineHeight:"1.6", margin:0 }}>{s.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ─── COMPANIES ─── */}
+      <section style={{ padding:"70px 5%" }}>
+        {/* Section header */}
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end",
+          marginBottom:"32px", flexWrap:"wrap", gap:"16px" }}>
+          <div>
+            <div style={{ color:"rgba(255,255,255,0.3)", fontSize:"11px", fontWeight:"700",
+              letterSpacing:"0.15em", textTransform:"uppercase", marginBottom:"8px" }}>
+              شركات النظافة
+            </div>
+            <h2 style={{ color:"#fff", fontSize:"clamp(20px,2.5vw,30px)", fontWeight:"900",
+              letterSpacing:"-0.02em", margin:0 }}>
+              {filtered.length} شركة متاحة
+            </h2>
+          </div>
+          {/* Filters */}
+          <div style={{ display:"flex", gap:"8px", flexWrap:"wrap" }}>
+            <select value={area} onChange={e=>setArea(e.target.value)} style={selStyle}>
+              {AREAS.map(a=><option key={a}>{a}</option>)}
+            </select>
+            <select value={service} onChange={e=>setService(e.target.value)} style={selStyle}>
+              {SERVICES.map(s=><option key={s}>{s}</option>)}
+            </select>
+            <select value={sortBy} onChange={e=>setSortBy(e.target.value)} style={selStyle}>
+              <option value="rating">الأعلى تقييماً</option>
+              <option value="price_asc">الأقل سعراً</option>
+              <option value="price_desc">الأعلى سعراً</option>
+              <option value="reviews">الأكثر تقييماً</option>
+            </select>
+            <button onClick={()=>setOnlyAvail(!onlyAvail)} style={{
+              ...selStyle,
+              background: onlyAvail ? "rgba(34,211,238,0.12)" : "rgba(255,255,255,0.04)",
+              border: onlyAvail ? "1px solid rgba(34,211,238,0.3)" : "1px solid rgba(255,255,255,0.1)",
+              color: onlyAvail ? "#22d3ee" : "rgba(255,255,255,0.5)",
+              cursor:"pointer", fontWeight: onlyAvail ? "700" : "500"
+            }}>متاح الآن فقط</button>
+          </div>
+        </div>
+
+        {/* Grid */}
+        {filtered.length > 0 ? (
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))", gap:"20px" }}>
+            {filtered.map((c,i)=>(
+              <div key={c.id} className="card-enter" style={{ animationDelay:`${i*0.04}s` }}>
+                <CompanyCard company={c} onBook={setBooking} index={i} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ textAlign:"center", padding:"80px 20px",
+            background:"rgba(255,255,255,0.02)", borderRadius:"20px",
+            border:"1px solid rgba(255,255,255,0.05)" }}>
+            <div style={{ fontSize:"48px", marginBottom:"16px" }}>🔍</div>
+            <div style={{ color:"rgba(255,255,255,0.5)", fontSize:"16px", fontWeight:"700", marginBottom:"8px" }}>
+              مفيش نتايج
+            </div>
+            <div style={{ color:"rgba(255,255,255,0.25)", fontSize:"14px" }}>
+              جرب تغير الفلتر أو ابحث بكلمة تانية
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* ─── STATS BANNER ─── */}
+      <section style={{ margin:"0 5%", padding:"48px", background:"rgba(34,211,238,0.04)",
+        border:"1px solid rgba(34,211,238,0.12)", borderRadius:"24px", marginBottom:"60px" }}>
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"32px", textAlign:"center" }}>
+          {[
+            { n:"15+", l:"شركة مسجلة على المنصة" },
+            { n:"مجاني", l:"الحجز بدون أي رسوم" },
+            { n:"حقيقية", l:"تقييمات من Google Maps" },
+            { n:"مباشر", l:"تواصل مع الشركة فوراً" },
+          ].map(s=>(
+            <div key={s.l}>
+              <div style={{ color:"#22d3ee", fontWeight:"900", fontSize:"28px",
+                letterSpacing:"-0.03em", marginBottom:"6px" }}>{s.n}</div>
+              <div style={{ color:"rgba(255,255,255,0.35)", fontSize:"13px" }}>{s.l}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ─── FAQ (SEO) ─── */}
+      <FAQ />
+
+      {/* ─── FOOTER ─── */}
+      <footer style={{ borderTop:"1px solid rgba(255,255,255,0.06)",
+        padding:"48px 5% 32px", background:"rgba(0,0,0,0.3)" }}>
+        <div style={{ display:"grid", gridTemplateColumns:"2fr 1fr 1fr", gap:"48px", marginBottom:"40px" }}>
+          <div>
+            <div style={{ display:"flex", alignItems:"center", gap:"8px", marginBottom:"16px" }}>
+              <div style={{ width:"32px", height:"32px", borderRadius:"8px",
+                background:"linear-gradient(135deg,#22d3ee,#0891b2)",
+                display:"flex", alignItems:"center", justifyContent:"center",
+                fontSize:"14px", fontWeight:"900", color:"#000" }}>ن</div>
+              <span style={{ fontSize:"18px", fontWeight:"900" }}>نظيف</span>
+            </div>
+            <p style={{ color:"rgba(255,255,255,0.35)", fontSize:"13px", lineHeight:"1.7", maxWidth:"280px", margin:0 }}>
+              أكبر سوق لشركات النظافة في مصر. نربط العملاء بأفضل شركات التنظيف بطريقة شفافة وسهلة.
+            </p>
+            {/* SEO: structured keywords */}
+            <div style={{ display:"flex", flexWrap:"wrap", gap:"8px", marginTop:"16px" }}>
+              {["شركة تنظيف","تنظيف منازل","تنظيف شقق","القاهرة","الجيزة"].map(k=>(
+                <span key={k} style={{ background:"rgba(255,255,255,0.04)",
+                  color:"rgba(255,255,255,0.25)", fontSize:"11px",
+                  padding:"3px 10px", borderRadius:"6px" }}>{k}</span>
+              ))}
+            </div>
+          </div>
+          <div>
+            <h4 style={{ color:"rgba(255,255,255,0.5)", fontSize:"11px", fontWeight:"700",
+              letterSpacing:"0.1em", textTransform:"uppercase", marginBottom:"16px" }}>روابط</h4>
+            {["الرئيسية","تسجيل شركتك","التقييمات","مدونتنا"].map(l=>(
+              <div key={l} style={{ color:"rgba(255,255,255,0.4)", fontSize:"14px",
+                marginBottom:"10px", cursor:"pointer" }}>{l}</div>
+            ))}
+          </div>
+          <div>
+            <h4 style={{ color:"rgba(255,255,255,0.5)", fontSize:"11px", fontWeight:"700",
+              letterSpacing:"0.1em", textTransform:"uppercase", marginBottom:"16px" }}>المناطق</h4>
+            {["الشيخ زايد","التجمع الخامس","مدينة نصر","المعادي","مصر الجديدة"].map(l=>(
+              <div key={l} style={{ color:"rgba(255,255,255,0.4)", fontSize:"14px",
+                marginBottom:"10px", cursor:"pointer" }}>{l}</div>
+            ))}
+          </div>
+        </div>
+        <div style={{ borderTop:"1px solid rgba(255,255,255,0.05)", paddingTop:"24px",
+          display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+          <span style={{ color:"rgba(255,255,255,0.2)", fontSize:"12px" }}>
+            © 2026 نظيف. جميع الحقوق محفوظة.
+          </span>
+          <span style={{ color:"rgba(255,255,255,0.2)", fontSize:"12px" }}>
+            شركة تنظيف | تنظيف منازل القاهرة | تنظيف شقق
+          </span>
+        </div>
+      </footer>
+
+      {booking && <BookingModal company={booking} onClose={()=>setBooking(null)} />}
+    </div>
+  );
+}
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(React.createElement(App));
+  </script>
+</body>
+</html>
